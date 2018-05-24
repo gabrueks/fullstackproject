@@ -1,32 +1,36 @@
 const passport = require('passport');
 
-module.exports = app =>{
+module.exports = app => {
   /*Google auth*/
-  app.get('/auth/google', passport.authenticate('google', {
+  app.get('/auth/google',
+   passport.authenticate('google', {
       scope: ['profile', 'email']
-    }),
+    }), (req, res, next) => {
+      next();
+    }
   );
 
   app.get('/auth/google/callback',
-    passport.authenticate('google', { failureRedirect: '/login' }),
-    (req, res) => {
-      res.redirect('/logado');
+    passport.authenticate('google', { successRedirect: '/logado/google', failureRedirect: '/login' }),
+     (req, res, next) => {
+      next();
     }
   );
   /*Google auth*/
 
   /*Facebook auth*/
 
-  app.get('/auth/facebook', passport.authenticate('facebook'),
-    (req, res) => {
-      require('./services/facebookPassport');
+  app.get('/auth/facebook',
+   passport.authenticate('facebook'),
+    (req, res, next) => {
+      next();
     }
   );
 
   app.get('/auth/facebook/callback',
-    passport.authenticate('facebook', { failureRedirect: '/login' }),
-    (req, res) => {
-      res.redirect('/logado');
+    passport.authenticate('facebook', { successRedirect: '/logado/facebook', failureRedirect: '/login' }),
+     (req, res, next) => {
+      next();
     }
   );
   /*Facebook auth*/
@@ -34,7 +38,7 @@ module.exports = app =>{
   app.get('/auth/logout', (req, res) => {
     req.logout();
     delete req.session;
-    res.redirect('/');
+    res.json({ user: 'success logout' });
   })
 
   app.get('/api/current_user', (req, res) =>{

@@ -21,7 +21,6 @@ passport.use(
             new FacebookUser({ facebookId: profile.id }).save()
               .then(user => done(null, user));
           }
-          console.log(profile);
         })
     }
   )
