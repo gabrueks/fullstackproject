@@ -13,6 +13,7 @@ passport.use(
         callbackURL: '/auth/facebook/callback'
     },
     (acessToken, refreshToken, profile, done) =>{
+      console.log(profile)
       FacebookUser.findOne({ facebookId: profile.id })
         .then((existingUser) => {
           if(existingUser){
