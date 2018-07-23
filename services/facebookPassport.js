@@ -10,19 +10,17 @@ passport.use(
     {
         clientID: keys.facebookClientID,
         clientSecret: keys.facebookAppSecret,
-        callbackURL: '/auth/facebook/callback'
+        callbackURL: 'http://localhost:3000'
     },
-    (acessToken, refreshToken, profile, done) =>{
+    async (acessToken, refreshToken, profile, done) =>{
       console.log(profile)
-      FacebookUser.findOne({ facebookId: profile.id })
-        .then((existingUser) => {
+        const existingUser = await FacebookUser.findOne({ facebookId: profile.id })
           if(existingUser){
             done(null, existingUser);
           }else{
-            new FacebookUser({ facebookId: profile.id }).save()
-              .then(user => done(null, user));
+            const user = await new FacebookUser({ facebookId: profile.id }).save()
+            done(null, user);
           }
-        })
     }
   )
 )

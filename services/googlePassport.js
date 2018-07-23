@@ -10,18 +10,14 @@ passport.serializeUser((user, done) => {
   done(null, user.id);
 })
 
-passport.deserializeUser((id, done) => {
-  User.findById(id)
-    .then(user => {
-      if(user == null || user == undefined){
-        FacebookUser.findById(id)
-          .then(user => {
-            done(null, user);
-          })
-      }else{
-        done(null, user);
-      }
-    })
+passport.deserializeUser(async (id, done) => {
+  const user = await User.findById(id)
+  if(user == null || user == undefined){
+    const newUser = await FacebookUser.findById(id)
+    return done(null, newUser);
+  }else{
+    done(null, user);
+  }
 })
 
 passport.use(
@@ -31,17 +27,14 @@ passport.use(
       clientSecret: keys.googleClientSecret,
       callbackURL: 'http://localhost:3000/'
     },
-    (acessToken, refreshToken, profile, done) => {
-      console.log(profile)
-      User.findOne({ googleId: profile.id })
-        .then((existingUser) => {
-          if(existingUser){
-            done(null, existingUser);
-          }else{
-            new User({ googleId: profile.id }).save()
-              .then(user => done(null,user))
-          }
-        })
-    }
-  )
+    async (acessToken, refreshToken, profile, done) => {
+      const existingUser = await User.findOne({ googleId: profile.id })
+        
+      if(existingUser){
+        return done(null, existingUser);
+      }
+        
+      const user = await new User({ googleId: profile.id }).save()
+      done(null, user);
+    })
 )
